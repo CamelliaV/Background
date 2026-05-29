@@ -1,10 +1,10 @@
 <div id="top" align="center">
     <br>
-    <a href="https://github.com/KatsuteDev/Background#readme">
-        <img alt="logo" width="100" height="100" src="https://raw.githubusercontent.com/KatsuteDev/Background/main/assets/icon.png">
+    <a href="https://github.com/CamelliaV/Background#readme">
+        <img alt="logo" width="100" height="100" src="https://raw.githubusercontent.com/CamelliaV/Background/main/assets/icon.png">
     </a>
-    <h3>Background</h3>
-    <h4>The most advanced background image extension for VSCode</h4>
+    <h3>Background Local</h3>
+    <h4>A CamelliaV fork of the Background image extension for VSCode</h4>
     <h5>Windows + Mac + Linux</h5>
 </div>
 
@@ -12,18 +12,37 @@
 
 Add multiple background images for the window, editors, sidebars, or the panel. Load backgrounds from file, [glob](https://github.com/isaacs/node-glob#glob-primer), or URL. Transition between multiple background images.
 
+This fork keeps the original `background.*` settings keys, but ships as the separate extension id `camelliav.code-background` with the command namespace `camelliaBackground.*`. It also adds commands for copying the currently displayed background URI and moving the active background slot to the next or previous image.
+
 <div align="center">
-    <img alt="editor background" src="https://raw.githubusercontent.com/KatsuteDev/Background/main/assets/editor.gif">
+    <img alt="editor background" src="https://raw.githubusercontent.com/CamelliaV/Background/main/assets/editor.gif">
 </div>
 
 ## Installation
 
- - Install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=katsute.code-background).
- - Install directly from VSCode using the id [`katsute.code-background`](https://marketplace.visualstudio.com/items?itemName=katsute.code-background).
+This fork is installed from a local VSIX package instead of the Visual Studio Marketplace.
 
-Customize using the <kbd>Background: Configuration</kbd> command or press the **Background** button in the bottom right to access the configuration menu.
+1. Disable or uninstall the original Marketplace extension `katsute.code-background` before testing this fork. The fork has a separate extension id, but both extensions patch the VS Code workbench.
+2. Build the VSIX:
 
-Install using the <kbd>Background: Install</kbd> command or press the **Install** button in the configuration menu to install the background.
+   ```sh
+   npm install
+   npm run package
+   ```
+
+3. Install the generated package:
+
+   ```sh
+   code --install-extension code-background-5.0.0.vsix
+   ```
+
+   You can also use **Extensions: Install from VSIX...** in VS Code and select the generated `code-background-5.0.0.vsix` file.
+
+4. Reload VS Code when prompted, then run <kbd>Background Local: Install</kbd>.
+
+Customize using the <kbd>Background Local: Configuration</kbd> command or press the **Background Local** button in the bottom right to access the configuration menu.
+
+Install using the <kbd>Background Local: Install</kbd> command or press the **Install** button in the configuration menu to install the background.
 
 ## Features
 
@@ -33,25 +52,25 @@ Add background images for the whole window, editors, sidebars, or the panel. Tra
 
 <div align="center">
     <h6>Full Window</h6>
-    <img src="https://raw.githubusercontent.com/KatsuteDev/Background/main/assets/window.gif">
+    <img src="https://raw.githubusercontent.com/CamelliaV/Background/main/assets/window.gif">
 </div>
 <br>
 <div align="center">
     <h6>Editor, Sidebar, and Terminal</h6>
-    <img src="https://raw.githubusercontent.com/KatsuteDev/Background/main/assets/editor.gif">
+    <img src="https://raw.githubusercontent.com/CamelliaV/Background/main/assets/editor.gif">
 </div>
 <br>
 <div align="center">
     <h6>Slideshow</h6>
-    <img src="https://raw.githubusercontent.com/KatsuteDev/Background/main/assets/transition.gif">
+    <img src="https://raw.githubusercontent.com/CamelliaV/Background/main/assets/transition.gif">
 </div>
 
 #### Configuration Menu
 
-Use the <kbd>Background: Configuration</kbd> command or press the **Background** button in the bottom right to access the configuration menu.
+Use the <kbd>Background Local: Configuration</kbd> command or press the **Background Local** button in the bottom right to access the configuration menu.
 
 <div align="center">
-    <img src="https://raw.githubusercontent.com/KatsuteDev/Background/main/assets/configuration.gif">
+    <img src="https://raw.githubusercontent.com/CamelliaV/Background/main/assets/configuration.gif">
 </div>
 
 #### Glob, URL, and Environment Variable Support
@@ -59,8 +78,14 @@ Use the <kbd>Background: Configuration</kbd> command or press the **Background**
 Add background images by file, folder, or URL. Supports [glob](https://github.com/isaacs/node-glob#glob-primer) and [environment variables](#environment-variables).
 
 <div align="center">
-    <img src="https://raw.githubusercontent.com/KatsuteDev/Background/main/assets/glob.gif">
+    <img src="https://raw.githubusercontent.com/CamelliaV/Background/main/assets/glob.gif">
 </div>
+
+#### Local Fork Commands
+
+Copy the currently displayed background URI with <kbd>Background Local: Copy Current Background URI</kbd>. Local VS Code resource URIs are copied as directly openable `file:///...` URIs, while HTTPS backgrounds are copied unchanged.
+
+Use <kbd>Background Local: Next Background</kbd> and <kbd>Background Local: Previous Background</kbd> to move the selected active background slot through its resolved image list without changing your settings.
 
 <div align="right"><a href="#top"><code>▲</code></a></div>
 
@@ -68,17 +93,20 @@ Add background images by file, folder, or URL. Supports [glob](https://github.co
 
 | Command | Description |
 |:--|:--|
-|<kbd>Background: Install</kbd>|Installs and enables the background|
-|<kbd>Background: Uninstall</kbd>|Uninstalls and disables the background|
-|<kbd>Background: Reload</kbd>|Randomizes the current background|
-|<kbd>Background: Configuration</kbd>|Opens the configuration menu|
-|<kbd>Background: Changelog</kbd>|Opens the changelog|
+|<kbd>Background Local: Install</kbd>|Installs and enables the background|
+|<kbd>Background Local: Uninstall</kbd>|Uninstalls and disables the background|
+|<kbd>Background Local: Reload</kbd>|Randomizes the current background|
+|<kbd>Background Local: Copy Current Background URI</kbd>|Copies the currently displayed background URI to the clipboard|
+|<kbd>Background Local: Next Background</kbd>|Switches the selected active background slot to the next resolved image|
+|<kbd>Background Local: Previous Background</kbd>|Switches the selected active background slot to the previous resolved image|
+|<kbd>Background Local: Configuration</kbd>|Opens the configuration menu|
+|<kbd>Background Local: Changelog</kbd>|Opens the changelog|
 
 <div align="right"><a href="#top"><code>▲</code></a></div>
 
 ## Configuration
 
-Use the <kbd>Background: Configuration</kbd> command or press the **Background** button in the bottom right to access the configuration menu.
+Use the <kbd>Background Local: Configuration</kbd> command or press the **Background Local** button in the bottom right to access the configuration menu.
 
 |Background|Description|
 |:--|:--|
@@ -133,7 +161,7 @@ Add this extension to your `package.json`.
 {
     ...
     "extensionDependencies": [
-        "katsute.code-background"
+        "camelliav.code-background"
     ]
     ...
 }
@@ -142,18 +170,18 @@ Add this extension to your `package.json`.
 Access the api by using:
 
 ```js
-const background = vscode.extensions.getExtension("katsute.code-background").exports;
+const background = vscode.extensions.getExtension("camelliav.code-background").exports;
 ```
 
  * `install(): void`
 
-   Runs the `Background: Install` command.
+   Runs the `Background Local: Install` command.
  * `uninstall(): void`
 
-   Runs the `Background: Uninstall` command.
+   Runs the `Background Local: Uninstall` command.
  * `reload(): void`
 
-   Runs the `Background: Reload` command.
+   Runs the `Background Local: Reload` command.
  * `get(ui): string[]?`
    * `ui` : Background to get from; either `window`, `editor`, `sidebar`, `panel`.
 
@@ -179,4 +207,4 @@ const background = vscode.extensions.getExtension("katsute.code-background").exp
 
 ## &nbsp;
 
-This extension is released under the [GNU General Public License (GPL) v2.0](https://github.com/KatsuteDev/Background/blob/main/LICENSE).
+This fork is based on [KatsuteDev/Background](https://github.com/KatsuteDev/Background) and is released under the [GNU General Public License (GPL) v2.0](LICENSE).

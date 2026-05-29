@@ -5,6 +5,7 @@
 
 .devcontainer
 .github
+docs
 
 assets/*
 !assets/icon-sm.png

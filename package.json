@@ -1,13 +1,13 @@
 {
     "name": "code-background",
-    "displayName": "Background",
+    "displayName": "Background Local",
     "description": "The most advanced background image extension for VSCode",
     "icon": "assets/icon-sm.png",
     "galleryBanner": {
         "color": "#0098FF",
         "theme": "dark"
     },
-    "publisher": "Katsute",
+    "publisher": "CamelliaV",
     "version": "5.0.0",
     "private": true,
     "engines": {
@@ -34,34 +34,49 @@
     "contributes": {
         "commands": [
             {
-                "command": "background.install",
+                "command": "camelliaBackground.install",
                 "title": "Install",
-                "category": "Background"
+                "category": "Background Local"
             },
             {
-                "command": "background.uninstall",
+                "command": "camelliaBackground.uninstall",
                 "title": "Uninstall",
-                "category": "Background"
+                "category": "Background Local"
             },
             {
-                "command": "background.reload",
+                "command": "camelliaBackground.reload",
                 "title": "Reload",
-                "category": "Background"
+                "category": "Background Local"
             },
             {
-                "command": "background.config",
+                "command": "camelliaBackground.copyCurrentBackgroundUri",
+                "title": "Copy Current Background URI",
+                "category": "Background Local"
+            },
+            {
+                "command": "camelliaBackground.nextBackground",
+                "title": "Next Background",
+                "category": "Background Local"
+            },
+            {
+                "command": "camelliaBackground.previousBackground",
+                "title": "Previous Background",
+                "category": "Background Local"
+            },
+            {
+                "command": "camelliaBackground.config",
                 "title": "Configuration",
-                "category": "Background"
+                "category": "Background Local"
             },
             {
-                "command": "background.changelog",
+                "command": "camelliaBackground.changelog",
                 "title": "Changelog",
-                "category": "Background"
+                "category": "Background Local"
             },
             {
-                "command": "background.help",
+                "command": "camelliaBackground.help",
                 "title": "Help",
-                "category": "Background"
+                "category": "Background Local"
             }
         ],
         "configuration": {
@@ -345,14 +360,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/KatsuteDev/Background.git"
+        "url": "git+https://github.com/CamelliaV/Background.git"
     },
     "author": "Katsute",
     "license": "GPL-2.0-only",
     "bugs": {
-        "url": "https://github.com/KatsuteDev/Background/issues"
+        "url": "https://github.com/CamelliaV/Background/issues"
     },
-    "homepage": "https://github.com/KatsuteDev/Background#readme",
+    "homepage": "https://github.com/CamelliaV/Background#readme",
     "devDependencies": {
         "@types/node": "25.9.1",
         "@types/tmp": "0.2.6",

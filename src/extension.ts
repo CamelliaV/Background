@@ -39,16 +39,16 @@ const forcedDelay: number = 1000; // how long to delay install when VSCode is op
 export let installDelay = 7000; // how long to delay install when VSCode is init
 
 export const setActive: (active?: boolean) => void = (active?: boolean) => {
-    statusbar.text = `$(${active === false ? "file-media" : "loading~spin"}) Background`;
+    statusbar.text = `$(${active === false ? "file-media" : "loading~spin"}) Background Local`;
 }
 
 export const statusbar: StatusBarItem = (() => {
     const item: StatusBarItem = window.createStatusBarItem(StatusBarAlignment.Right);
 
-    item.command = "background.config";
-    item.name = "Background";
-    item.text = "$(file-media) Background";
-    item.tooltip = "Open background configuration";
+    item.command = "camelliaBackground.config";
+    item.name = "Background Local";
+    item.text = "$(file-media) Background Local";
+    item.tooltip = "Open Background Local configuration";
 
     return item;
 })();
@@ -125,16 +125,37 @@ export const activate: (context: ExtensionContext) => any = (context: ExtensionC
     const help: Uri = Uri.file(join(context.extensionPath, "HELP.md"));
 
     context.subscriptions.push(
-        commands.registerCommand("background.install", () => install(workbench, product, true)),
-        commands.registerCommand("background.uninstall", () =>
+        commands.registerCommand("camelliaBackground.install", () => install(workbench, product, true)),
+        commands.registerCommand("camelliaBackground.uninstall", () =>
             configuration()
                 .update("autoInstall", false, ConfigurationTarget.Global)
                 .then(() => uninstall(workbench, product, true))
         ),
-        commands.registerCommand("background.reload", reload),
-        commands.registerCommand("background.help", () => commands.executeCommand("markdown.showPreview", help)),
-        commands.registerCommand("background.changelog", () => commands.executeCommand("markdown.showPreview", changelog)),
-        commands.registerCommand("background.config", optionMenu),
+        commands.registerCommand("camelliaBackground.reload", reload),
+        commands.registerCommand("camelliaBackground.copyCurrentBackgroundUri", async () => {
+            try{
+                await commands.executeCommand("camelliaBackground._copyCurrentBackgroundUri");
+            }catch{
+                window.showWarningMessage("Install and reload Background before copying the current background URI.");
+            }
+        }),
+        commands.registerCommand("camelliaBackground.nextBackground", async () => {
+            try{
+                await commands.executeCommand("camelliaBackground._nextBackground");
+            }catch{
+                window.showWarningMessage("Install and reload Background before switching backgrounds.");
+            }
+        }),
+        commands.registerCommand("camelliaBackground.previousBackground", async () => {
+            try{
+                await commands.executeCommand("camelliaBackground._previousBackground");
+            }catch{
+                window.showWarningMessage("Install and reload Background before switching backgrounds.");
+            }
+        }),
+        commands.registerCommand("camelliaBackground.help", () => commands.executeCommand("markdown.showPreview", help)),
+        commands.registerCommand("camelliaBackground.changelog", () => commands.executeCommand("markdown.showPreview", changelog)),
+        commands.registerCommand("camelliaBackground.config", optionMenu),
         statusbar
     );
 

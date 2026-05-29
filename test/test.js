@@ -13,7 +13,7 @@ module.exports = {
 
         await wait(5);
 
-        const background = vscode.extensions.getExtension("katsute.code-background").exports;
+        const background = vscode.extensions.getExtension("camelliav.code-background").exports;
 
         let num;
         if(!fs.existsSync(file)){

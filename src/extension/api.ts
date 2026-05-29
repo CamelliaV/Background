@@ -22,8 +22,8 @@ import { get as cget } from "./config";
 import { reload } from "../lib/vscode";
 
 export const api = {
-    install: () => cget("API") && commands.executeCommand("background.install"),
-    uninstall: () => cget("API") && commands.executeCommand("background.uninstall"),
+    install: () => cget("API") && commands.executeCommand("camelliaBackground.install"),
+    uninstall: () => cget("API") && commands.executeCommand("camelliaBackground.uninstall"),
     reload,
     get: (ui: string) => {
         if(cget("API"))

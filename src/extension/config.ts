@@ -44,7 +44,7 @@ export const target: () => ConfigurationTarget = () => configuration().get("sett
 export const notify: () => void = () =>
     window.showWarningMessage("Background has been modified, a reinstall is required to see changes.", "Install and Reload", "Ignore")
         .then((value?: string) => {
-            value === "Install and Reload" && commands.executeCommand("background.install")
+            value === "Install and Reload" && commands.executeCommand("camelliaBackground.install")
         });
 
 // get

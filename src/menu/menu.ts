@@ -51,17 +51,17 @@ export const optionMenu: () => void = () =>
         quickPickItem({
             alwaysShow: true,
             label: "$(check) Install",
-            handle: () => commands.executeCommand("background.install")
+            handle: () => commands.executeCommand("camelliaBackground.install")
         }),
         quickPickItem({
             alwaysShow: true,
             label: "$(close) Uninstall",
-            handle: () => commands.executeCommand("background.uninstall")
+            handle: () => commands.executeCommand("camelliaBackground.uninstall")
         }),
         quickPickItem({
             alwaysShow: true,
             label: "$(refresh) Reload",
-            handle: () => commands.executeCommand("background.reload")
+            handle: () => commands.executeCommand("camelliaBackground.reload")
         }),
         quickPickItem({
             label: "$(settings-gear) More Options",
@@ -70,7 +70,7 @@ export const optionMenu: () => void = () =>
         separator(),
         quickPickItem({
             label: "$(question) Help",
-            handle: () => commands.executeCommand("background.help")
+            handle: () => commands.executeCommand("camelliaBackground.help")
         }),
     ], {
         title: "Background" + (target() === ConfigurationTarget.Workspace ? " (Workspace)": ""),
@@ -125,7 +125,7 @@ const moreMenu: (selected?: number) => void = (selected?: number) => {
         separator(),
         quickPickItem({
             label: "$(output) Changelog",
-            handle: () => commands.executeCommand("background.changelog")
+            handle: () => commands.executeCommand("camelliaBackground.changelog")
         }),
         quickPickItem({
             label: "$(bug) Report an issue",
