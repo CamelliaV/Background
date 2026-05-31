@@ -37,15 +37,46 @@ export const extensions: () => string[] = () => ["png", "jpg", "jpeg", "webp", "
 export const inject: (content: string) => string = (content: string) =>
     clean(content) + '\n' +
     `/* ${identifier}-start */` + '\n' +
-    minifyJavaScript(getJavaScript()) + '\n' +
+    minifyJavaScript(getJavaScript(content)) + '\n' +
     `/* ${identifier}-end */`;
 
 export const clean: (content: string) => string = (s: string) =>
     s.replace(partition, "").trim();
 
+export const hasCurrentCommandInjection: (content: string) => boolean = (content: string) =>
+    [
+        'backgroundCommandRegistry.registerCommand("camelliaBackground._copyCurrentBackgroundUri"',
+        'backgroundCommandRegistry.registerCommand("camelliaBackground._nextBackground"',
+        'backgroundCommandRegistry.registerCommand("camelliaBackground._previousBackground"'
+    ].every((marker: string) => content.includes(marker));
+
 // javascript
 
-const getJavaScript: () => string = () => {
+interface WorkbenchSymbols {
+    commandRegistry?: string,
+    quickInputService?: string,
+    clipboardService?: string,
+    notificationService?: string
+}
+
+const jsIdentifier: string = String.raw`[$A-Z_a-z][$\w]*`;
+
+const findWorkbenchSymbol: (content: string, pattern: (identifier: string) => string) => string | undefined =
+    (content: string, pattern: (identifier: string) => string) =>
+        new RegExp(pattern(jsIdentifier)).exec(content)?.[1];
+
+const getWorkbenchSymbols: (content: string) => WorkbenchSymbols = (content: string) => ({
+    commandRegistry: findWorkbenchSymbol(content, (id: string) => `(?:^|[^$\\w])(${id})\\.registerCommand\\("noop",\\(\\)=>\\{\\}\\)`),
+    quickInputService: findWorkbenchSymbol(content, (id: string) => `(?:^|[^$\\w])(${id})=le\\("quickInputService"\\)`),
+    clipboardService: findWorkbenchSymbol(content, (id: string) => `(?:^|[^$\\w])(${id})=le\\("clipboardService"\\)`),
+    notificationService: findWorkbenchSymbol(content, (id: string) => `(?:^|[^$\\w])(${id})=le\\("notificationService"\\)`)
+});
+
+const workbenchSymbol: (symbol?: string) => string = (symbol?: string) => symbol ?? "undefined";
+
+const getJavaScript: (content: string) => string = (content: string) => {
+    const symbols: WorkbenchSymbols = getWorkbenchSymbols(content);
+
     const images: {[key: string]: string[]} = {
         window:  resolve(get("windowBackgrounds")),
         editor:  resolve(get("editorBackgrounds")),
@@ -146,6 +177,11 @@ const currentBackgrounds = {
     sidebar: [],
     panel: undefined
 };
+
+const backgroundCommandRegistry = ${workbenchSymbol(symbols.commandRegistry)};
+const backgroundQuickInputServiceId = ${workbenchSymbol(symbols.quickInputService)};
+const backgroundClipboardServiceId = ${workbenchSymbol(symbols.clipboardService)};
+const backgroundNotificationServiceId = ${workbenchSymbol(symbols.notificationService)};
 `
 + // individual background css - window
 `
@@ -379,16 +415,27 @@ const shuffle = (arr) => {
 + // command
 `
 const backgroundNotify = (notificationService, type, message) => {
-    if(notificationService && notificationService.notify && typeof ft !== "undefined"){
+    if(notificationService && notificationService.notify){
         notificationService.notify({
-            severity: type === "error" ? ft.Error : type === "warning" ? ft.Warning : ft.Info,
-            source: "Background",
+            severity: type === "error" ? 3 : type === "warning" ? 2 : 1,
+            source: "Background Local",
             message
         });
         return;
     };
     const logger = type === "error" ? console.error : type === "warning" ? console.warn : console.log;
     logger(message);
+};
+
+const getWorkbenchService = (accessor, serviceId) => {
+    if(!serviceId)
+        return;
+
+    try{
+        return accessor.get(serviceId);
+    }catch(error){
+        console.warn(error);
+    };
 };
 
 const toCopyUri = (uri) => {
@@ -430,8 +477,8 @@ const pickCurrentBackgroundEntry = async (accessor, notificationService, placeHo
     if(entries.length === 1)
         return entries[0];
 
-    if(typeof $e !== "undefined"){
-        const quickInputService = accessor.get($e);
+    const quickInputService = getWorkbenchService(accessor, backgroundQuickInputServiceId);
+    if(quickInputService && quickInputService.pick){
         return await quickInputService.pick(entries, {placeHolder});
     };
 
@@ -440,17 +487,15 @@ const pickCurrentBackgroundEntry = async (accessor, notificationService, placeHo
 };
 
 const copyBackgroundText = async (accessor, text) => {
-    if(typeof Bi !== "undefined"){
-        try{
-            const clipboardService = accessor.get(Bi);
-            if(clipboardService && clipboardService.writeText){
-                await clipboardService.writeText(text);
-                return;
-            }
-        }catch(error){
-            console.warn(error);
+    try{
+        const clipboardService = getWorkbenchService(accessor, backgroundClipboardServiceId);
+        if(clipboardService && clipboardService.writeText){
+            await clipboardService.writeText(text);
+            return;
         }
-    };
+    }catch(error){
+        console.warn(error);
+    }
     if(typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText){
         try{
             await navigator.clipboard.writeText(text);
@@ -485,12 +530,9 @@ const advanceBackground = (entry, direction) => {
     return true;
 };
 
-if(typeof Ge !== "undefined" && Ge.registerCommand){
-    Ge.registerCommand("camelliaBackground._copyCurrentBackgroundUri", async (accessor) => {
-        let notificationService;
-        if(typeof Ne !== "undefined"){
-            notificationService = accessor.get(Ne);
-        };
+if(backgroundCommandRegistry && backgroundCommandRegistry.registerCommand){
+    backgroundCommandRegistry.registerCommand("camelliaBackground._copyCurrentBackgroundUri", async (accessor) => {
+        const notificationService = getWorkbenchService(accessor, backgroundNotificationServiceId);
 
         try{
             const selected = await pickCurrentBackgroundEntry(accessor, notificationService, "Select background URI to copy");
@@ -504,11 +546,8 @@ if(typeof Ge !== "undefined" && Ge.registerCommand){
             console.error(error);
         }
     });
-    Ge.registerCommand("camelliaBackground._nextBackground", async (accessor) => {
-        let notificationService;
-        if(typeof Ne !== "undefined"){
-            notificationService = accessor.get(Ne);
-        };
+    backgroundCommandRegistry.registerCommand("camelliaBackground._nextBackground", async (accessor) => {
+        const notificationService = getWorkbenchService(accessor, backgroundNotificationServiceId);
 
         const selected = await pickCurrentBackgroundEntry(accessor, notificationService, "Select background to advance");
         if(!selected)
@@ -519,11 +558,8 @@ if(typeof Ge !== "undefined" && Ge.registerCommand){
         else
             backgroundNotify(notificationService, "warning", "Selected background has no next image.");
     });
-    Ge.registerCommand("camelliaBackground._previousBackground", async (accessor) => {
-        let notificationService;
-        if(typeof Ne !== "undefined"){
-            notificationService = accessor.get(Ne);
-        };
+    backgroundCommandRegistry.registerCommand("camelliaBackground._previousBackground", async (accessor) => {
+        const notificationService = getWorkbenchService(accessor, backgroundNotificationServiceId);
 
         const selected = await pickCurrentBackgroundEntry(accessor, notificationService, "Select background to rewind");
         if(!selected)
@@ -534,6 +570,8 @@ if(typeof Ge !== "undefined" && Ge.registerCommand){
         else
             backgroundNotify(notificationService, "warning", "Selected background has no previous image.");
     });
+}else{
+    console.warn("Background Local command registry unavailable");
 };
 `
 + // install

@@ -19,7 +19,7 @@
 import { join } from "path";
 import { platform, release } from "os";
 import { exec } from "@vscode/sudo-prompt";
-import { existsSync, copyFileSync } from "fs";
+import { existsSync, copyFileSync, readFileSync } from "fs";
 import { ConfigurationTarget, ExtensionContext, StatusBarAlignment, StatusBarItem, Uri, commands, window } from "vscode";
 
 import { copyCommand } from "./lib/file";
@@ -27,6 +27,7 @@ import { reload } from "./lib/vscode";
 
 import { api } from "./extension/api";
 import { install, uninstall } from "./extension/writer";
+import { hasCurrentCommandInjection } from "./extension/inject";
 import { optionMenu } from "./menu/menu";
 import { configuration } from "./extension/config";
 import { env } from "vscode";
@@ -52,6 +53,22 @@ export const statusbar: StatusBarItem = (() => {
 
     return item;
 })();
+
+const showWorkbenchCommandUnavailable: (workbench: string, product: string, action: string, error: unknown) => void = (workbench: string, product: string, action: string, error: unknown) => {
+    console.warn(error);
+
+    try{
+        if(!hasCurrentCommandInjection(readFileSync(workbench, "utf-8"))){
+            install(workbench, product, true);
+            window.showWarningMessage(`Background Local found an older workbench injection and is reinstalling it. VS Code will reload; try ${action} again after reload.`);
+            return;
+        }
+    }catch(reinstallError){
+        console.warn(reinstallError);
+    }
+
+    window.showWarningMessage(`Background Local workbench command is unavailable. Run Background Local: Install, reload VS Code, then try ${action} again.`);
+}
 
 export const activate: (context: ExtensionContext) => any = (context: ExtensionContext) => {
     let workbench: string;
@@ -135,22 +152,22 @@ export const activate: (context: ExtensionContext) => any = (context: ExtensionC
         commands.registerCommand("camelliaBackground.copyCurrentBackgroundUri", async () => {
             try{
                 await commands.executeCommand("camelliaBackground._copyCurrentBackgroundUri");
-            }catch{
-                window.showWarningMessage("Install and reload Background before copying the current background URI.");
+            }catch(error){
+                showWorkbenchCommandUnavailable(workbench, product, "copying the current background URI", error);
             }
         }),
         commands.registerCommand("camelliaBackground.nextBackground", async () => {
             try{
                 await commands.executeCommand("camelliaBackground._nextBackground");
-            }catch{
-                window.showWarningMessage("Install and reload Background before switching backgrounds.");
+            }catch(error){
+                showWorkbenchCommandUnavailable(workbench, product, "switching backgrounds", error);
             }
         }),
         commands.registerCommand("camelliaBackground.previousBackground", async () => {
             try{
                 await commands.executeCommand("camelliaBackground._previousBackground");
-            }catch{
-                window.showWarningMessage("Install and reload Background before switching backgrounds.");
+            }catch(error){
+                showWorkbenchCommandUnavailable(workbench, product, "switching backgrounds", error);
             }
         }),
         commands.registerCommand("camelliaBackground.help", () => commands.executeCommand("markdown.showPreview", help)),

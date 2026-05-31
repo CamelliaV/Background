@@ -21,6 +21,12 @@ assert.strictEqual(
     "publisher prefix is CamelliaV"
 );
 
+assert.strictEqual(
+    pkg.version,
+    "5.0.1",
+    "bugfix VSIX version distinguishes stale 5.0.0 installs"
+);
+
 assert.notStrictEqual(
     extensionId,
     "katsute.code-background",
@@ -79,6 +85,26 @@ assert(
 );
 
 assert(
+    extension.includes("Background Local workbench command is unavailable"),
+    "public commands explain when the injected workbench command is unavailable"
+);
+
+assert(
+    extension.includes("hasCurrentCommandInjection(readFileSync(workbench"),
+    "public commands detect stale workbench injection before showing the generic warning"
+);
+
+assert(
+    extension.includes("install(workbench, product, true);"),
+    "public commands reinstall stale workbench injection automatically"
+);
+
+assert(
+    !extension.includes("Install and reload Background before copying the current background URI."),
+    "public copy command no longer shows the stale generic Background warning"
+);
+
+assert(
     extension.includes('item.command = "camelliaBackground.config"'),
     "status bar command uses fork command namespace"
 );
@@ -99,18 +125,43 @@ assert(
 );
 
 assert(
-    inject.includes('Ge.registerCommand("camelliaBackground._copyCurrentBackgroundUri"'),
+    inject.includes('backgroundCommandRegistry.registerCommand("camelliaBackground._copyCurrentBackgroundUri"'),
     "injected script registers private copy command"
 );
 
 assert(
-    inject.includes('Ge.registerCommand("camelliaBackground._nextBackground"'),
+    inject.includes('backgroundCommandRegistry.registerCommand("camelliaBackground._nextBackground"'),
     "injected script registers private next command"
 );
 
 assert(
-    inject.includes('Ge.registerCommand("camelliaBackground._previousBackground"'),
+    inject.includes('backgroundCommandRegistry.registerCommand("camelliaBackground._previousBackground"'),
     "injected script registers private previous command"
+);
+
+assert(
+    inject.includes("const getWorkbenchSymbols"),
+    "injected script derives minified VS Code workbench symbols from the installed workbench"
+);
+
+assert(
+    inject.includes("export const hasCurrentCommandInjection"),
+    "inject module can detect whether the installed workbench contains the current command bridge"
+);
+
+assert(
+    !inject.includes("Ge.registerCommand"),
+    "injected script must not hard-code the VS Code command registry symbol"
+);
+
+assert(
+    !inject.includes("accessor.get(Bi)"),
+    "injected script must not hard-code the VS Code clipboard service symbol"
+);
+
+assert(
+    !inject.includes("accessor.get($e)"),
+    "injected script must not hard-code the VS Code quick input service symbol"
 );
 
 assert(

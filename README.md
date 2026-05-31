@@ -33,10 +33,10 @@ This fork is installed from a local VSIX package instead of the Visual Studio Ma
 3. Install the generated package:
 
    ```sh
-   code --install-extension code-background-5.0.0.vsix
+   code --install-extension code-background-5.0.1.vsix
    ```
 
-   You can also use **Extensions: Install from VSIX...** in VS Code and select the generated `code-background-5.0.0.vsix` file.
+   You can also use **Extensions: Install from VSIX...** in VS Code and select the generated `code-background-5.0.1.vsix` file.
 
 4. Reload VS Code when prompted, then run <kbd>Background Local: Install</kbd>.
 
